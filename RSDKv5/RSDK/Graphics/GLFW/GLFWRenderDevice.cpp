@@ -140,7 +140,11 @@ bool RenderDevice::SetupRendering()
     glfwMakeContextCurrent(window);
     GLenum err = glewInit();
     // Wayland workaround, see https://github.com/nigels-com/glew/issues/172
+#if RETRO_PLATFORM != RETRO_WEB
     if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
+#else
+    if (err != GLEW_OK) {
+#endif
         PrintLog(PRINT_NORMAL, "ERROR: failed to initialize GLEW: %s", glewGetErrorString(err));
         return false;
     }

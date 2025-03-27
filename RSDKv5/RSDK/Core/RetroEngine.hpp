@@ -91,6 +91,7 @@ enum GameRegions {
 #define RETRO_iOS     (6)
 #define RETRO_ANDROID (7)
 #define RETRO_UWP     (8)
+#define RETRO_WEB     (9)
 
 // ============================
 // PLATFORMS (used mostly in legacy but could come in handy here)
@@ -141,6 +142,9 @@ enum GameRegions {
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #elif defined __linux__
 #define RETRO_PLATFORM   (RETRO_LINUX)
+#define RETRO_DEVICETYPE (RETRO_STANDARD)
+#elif defined __EMSCRIPTEN__
+#define RETRO_PLATFORM   (RETRO_WEB)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
 #else
 #define RETRO_PLATFORM   (RETRO_WIN)
@@ -322,7 +326,7 @@ enum GameRegions {
 #undef RETRO_INPUTDEVICE_XINPUT
 #define RETRO_INPUTDEVICE_XINPUT (1)
 
-#elif RETRO_PLATFORM == RETRO_LINUX
+#elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_WEB
 
 #if !RETRO_AUDIODEVICE_SDL2
 #undef RETRO_AUDIODEVICE_MINI
@@ -471,7 +475,7 @@ enum GameRegions {
 #elif RETRO_PLATFORM == RETRO_iOS
 
 #include "cocoaHelpers.hpp"
-#elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH
+#elif RETRO_PLATFORM == RETRO_LINUX || RETRO_PLATFORM == RETRO_SWITCH || RETRO_PLATFORM == RETRO_WEB
 
 #if RETRO_AUDIODEVICE_PORT
 #include <portaudio.h>
@@ -656,7 +660,12 @@ extern LogicLinkHandle linkGameLogic;
 // CORE ENGINE FUNCTIONS
 // ============================
 
-int32 RunRetroEngine(int32 argc, char *argv[]);
+void InitRetroEngine(int32 argc, char *argv[]);
+#if RETRO_PLATFORM == RETRO_WEB
+void RunRetroEngine();
+#else
+int32 RunRetroEngine();
+#endif
 void ProcessEngine();
 
 void ParseArguments(int32 argc, char *argv[]);

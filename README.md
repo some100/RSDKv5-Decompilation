@@ -63,6 +63,9 @@ Finally, follow the [compilation steps below](#compiling) using `-DCMAKE_TOOLCHA
 ### Android
 Follow the android build instructions [here.](./dependencies/android/README.md)
 
+### Web
+Download libtheora to the android dependency directory as per the android build instructions [here.](./dependencies/android/README.md). Then, place your Data.rsdk and Settings.ini file at the root of the repository.
+
 ## Compiling
 
 Compiling is as simple as typing the following in the root repository directory:

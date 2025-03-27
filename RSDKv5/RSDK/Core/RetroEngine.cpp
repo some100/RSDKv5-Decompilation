@@ -22,7 +22,7 @@ void (*RSDK::globalVarsInitCB)(void *globals) = NULL;
 
 RetroEngine RSDK::engine = RetroEngine();
 
-int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
+void RSDK::InitRetroEngine(int32 argc, char *argv[])
 {
     ParseArguments(argc, argv);
 
@@ -84,7 +84,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
             // popup a message box saying the API failed to validate or something
             // on steam this is the "steam must be running to play this game" message
-            return 0;
+            return;
         }
 
         InitEngine();
@@ -106,15 +106,26 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
     }
 
     RenderDevice::InitFPSCap();
+}
 
+#if RETRO_PLATFORM == RETRO_WEB
+void RSDK::RunRetroEngine() // slopping
+#else
+int32 RSDK::RunRetroEngine()
+#endif
+{
+#if RETRO_PLATFORM != RETRO_WEB
     while (RenderDevice::isRunning) {
+#endif
         RenderDevice::ProcessEvents();
 
+#if RETRO_PLATFORM != RETRO_WEB
         if (!RenderDevice::isRunning)
-            break;
+            break; // no way to break on web so just keep going
 
         if (RenderDevice::CheckFPSCap()) {
             RenderDevice::UpdateFPSCap();
+#endif
 
             AudioDevice::FrameInit();
 
@@ -122,7 +133,11 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
             SKU::userCore->FrameInit();
 
             if (SKU::userCore->CheckEnginePause())
+#if RETRO_PLATFORM != RETRO_WEB
                 continue;
+#else
+                return;
+#endif
 
                 // Focus Checks
 #if !RETRO_USE_ORIGINAL_CODE
@@ -165,7 +180,11 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 
             if (!engine.initialized || (engine.focusState & 1)) {
                 if (videoSettings.windowState != WINDOWSTATE_ACTIVE)
+#if RETRO_PLATFORM != RETRO_WEB
                     continue;
+#else
+                    return;
+#endif
             }
             else {
                 if (!engine.hardPause) {
@@ -278,7 +297,11 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
 #endif
 
                 if (videoSettings.windowState != WINDOWSTATE_ACTIVE)
+#if RETRO_PLATFORM != RETRO_WEB
                     continue;
+#else
+                    return;
+#endif
 
 #if !RETRO_USE_ORIGINAL_CODE
                 for (int32 t = 0; t < touchInfo.count; ++t) {
@@ -318,6 +341,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
                 RenderDevice::ProcessDimming();
 
             RenderDevice::FlipScreen();
+#if RETRO_PLATFORM != RETRO_WEB
         }
     }
 
@@ -340,6 +364,7 @@ int32 RSDK::RunRetroEngine(int32 argc, char *argv[])
         ReleaseConsole();
 
     return 0;
+#endif
 }
 
 void RSDK::ProcessEngine()

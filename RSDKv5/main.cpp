@@ -9,6 +9,14 @@
 #define LinkGameLogic LinkGameLogicDLL
 #endif
 
+#if RETRO_PLATFORM == RETRO_WEB
+#include "emscripten.h"
+void Run()
+{
+    RSDK::RunRetroEngine();
+}
+#endif
+
 #if RETRO_PLATFORM == RETRO_WIN && !RETRO_RENDERDEVICE_SDL2
 
 #if RETRO_RENDERDEVICE_DIRECTX9 || RETRO_RENDERDEVICE_DIRECTX11
@@ -84,9 +92,16 @@ int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 
     RSDK::InitCoreAPI();
 
-    int32 exitCode = RSDK::RunRetroEngine(argc, argv);
+    RSDK::InitRetroEngine(argc, argv);
+
+#if RETRO_PLATFORM == RETRO_WEB
+    emscripten_set_main_loop(Run, 0, true);
+    return 0;
+#else
+    int32 exitCode = RSDK::RunRetroEngine();
 
     RSDK::ReleaseCoreAPI();
 
     return exitCode;
+#endif
 }
