@@ -111,7 +111,11 @@ bool32 RSDK::LoadDataPack(const char *filePath, size_t fileOffset, bool32 useBuf
     FileInfo info;
 
     char dataPackPath[0x100];
+#if RETRO_PLATFORM == RETRO_WEB
+    sprintf_s(dataPackPath, sizeof(dataPackPath), "%s", filePath);
+#else
     sprintf_s(dataPackPath, sizeof(dataPackPath), "%s%s", SKU::userFileDir, filePath);
+#endif
 
     InitFileInfo(&info);
     info.externalFile = true;

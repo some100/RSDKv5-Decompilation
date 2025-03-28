@@ -29,6 +29,11 @@ elseif(RETRO_SUBSYSTEM STREQUAL "SDL2")
     target_link_options(RetroEngine PRIVATE --use-port=sdl2)
 endif()
 
+if(RETRO_WEB_SAVES)
+    target_link_options(RetroEngine PRIVATE -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_callbackIDBFS)
+    target_compile_definitions(RetroEngine PRIVATE RETRO_USE_WEB_SAVES=1)
+endif()
+
 if(RETRO_MOD_LOADER)
     set_target_properties(RetroEngine PROPERTIES
         CXX_STANDARD 17

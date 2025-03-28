@@ -284,7 +284,11 @@ void RSDK::LoadSettingsINI()
     bool32 useBuffer = !(platform == PLATFORM_PC || platform == PLATFORM_DEV);
 
     char pathBuffer[0x100];
+#if RETRO_PLATFORM == RETRO_WEB
+    sprintf_s(pathBuffer, sizeof(pathBuffer), "Settings.ini");
+#else
     sprintf_s(pathBuffer, sizeof(pathBuffer), "%sSettings.ini", SKU::userFileDir);
+#endif
 
     dictionary *ini = iniparser_load(pathBuffer);
 
