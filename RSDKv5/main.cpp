@@ -15,24 +15,6 @@ void Run()
 {
     RSDK::RunRetroEngine();
 }
-#if RETRO_USE_WEB_SAVES
-extern "C" void callbackIDBFS() {
-    RSDK::InitRetroEngine(0, NULL);
-    emscripten_set_main_loop(Run, 0, false);
-};
-
-EM_JS(void, loadFromIDBFS, (), {
-    FS.mkdir('/savesmania');
-    FS.mount(IDBFS, { autoPersist: true }, '/savesmania');
-    FS.syncfs(true, function (err) {
-        if (err)
-            console.error("Failed to load from IDBFS: " + err);
-        else
-            console.log("Successfully loaded from IDBFS");
-        _callbackIDBFS(); // callback after idbfs loads to prevent savedata being read before it loads
-    });
-});
-#endif
 #endif
 
 #if RETRO_PLATFORM == RETRO_WIN && !RETRO_RENDERDEVICE_SDL2
@@ -110,12 +92,10 @@ int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 
     RSDK::InitCoreAPI();
 
-#if RETRO_USE_WEB_SAVES
-    loadFromIDBFS();
-#else
     RSDK::InitRetroEngine(argc, argv);
 #if RETRO_PLATFORM == RETRO_WEB
-    emscripten_set_main_loop(Run, 0, true);
+    emscripten_set_main_loop(Run, 0, false);
+    return 0;
 #else
     int32 exitCode = RSDK::RunRetroEngine();
 
@@ -123,6 +103,4 @@ int32 RSDK_main(int32 argc, char **argv, void *linkLogicPtr)
 
     return exitCode;
 #endif
-#endif
-    return 0;
 }

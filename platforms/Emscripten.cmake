@@ -12,6 +12,7 @@ target_link_options(RetroEngine PRIVATE
                     --use-preload-cache
                     --preload-file ../Data.rsdk@/ 
                     --embed-file ../Settings.ini@/
+                    -lidbfs.js
 )
 target_compile_options(RetroEngine PRIVATE 
                     --use-port=ogg
@@ -21,17 +22,11 @@ target_compile_options(RetroEngine PRIVATE
 
 set(COMPILE_THEORA on)
 
-if(RETRO_SUBSYSTEM STREQUAL "OGL") # this doesn't work yet
-    target_compile_options(RetroEngine PRIVATE --use-port=contrib.glfw3)
-    target_link_options(RetroEngine PRIVATE --use-port=contrib.glfw3)
-elseif(RETRO_SUBSYSTEM STREQUAL "SDL2")
+if(RETRO_SUBSYSTEM STREQUAL "SDL2")
     target_compile_options(RetroEngine PRIVATE --use-port=sdl2)
     target_link_options(RetroEngine PRIVATE --use-port=sdl2)
-endif()
-
-if(RETRO_WEB_SAVES)
-    target_link_options(RetroEngine PRIVATE -lidbfs.js -sEXPORTED_FUNCTIONS=_main,_callbackIDBFS)
-    target_compile_definitions(RetroEngine PRIVATE RETRO_USE_WEB_SAVES=1)
+else()
+    message(FATAL_ERROR "Subsystems other than SDL2 are currently not supported with web builds")
 endif()
 
 if(RETRO_MOD_LOADER)

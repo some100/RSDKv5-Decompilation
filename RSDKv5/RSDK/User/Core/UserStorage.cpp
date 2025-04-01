@@ -1165,7 +1165,7 @@ void RSDK::SKU::InitUserDirectory()
 
 #elif RETRO_PLATFORM == RETRO_WEB
 
-    SKU::SetUserFileCallbacks("./savesmania/", NULL, NULL);
+    SKU::SetUserFileCallbacks("./savesRSDKv5/", NULL, NULL);
 
 #else
 

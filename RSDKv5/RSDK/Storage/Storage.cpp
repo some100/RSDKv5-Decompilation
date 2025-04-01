@@ -1,5 +1,9 @@
 #include "RSDK/Core/RetroEngine.hpp"
 
+#if RETRO_PLATFORM == RETRO_WEB
+#include "emscripten.h"
+#endif
+
 using namespace RSDK;
 
 #if RETRO_REV0U
@@ -28,6 +32,19 @@ DataStorage RSDK::dataStorage[DATASET_MAX];
 
 bool32 RSDK::InitStorage()
 {
+#if RETRO_PLATFORM == RETRO_WEB
+    EM_ASM_INT({
+        FS.mkdir('/savesRSDKv5');
+        FS.mount(IDBFS, { autoPersist: true }, '/savesRSDKv5');
+        FS.syncfs(true, function (err) {
+            if (err)
+                console.error("Failed to load from IDBFS: " + err);
+            else
+                console.log("Successfully loaded from IDBFS");
+            return true; // this shouldn't return anything but we return true to force emscripten to wait for this async func
+        });
+    });
+#endif
     // Storage limits.
     dataStorage[DATASET_STG].storageLimit = 24 * 1024 * 1024; // 24MB
     dataStorage[DATASET_MUS].storageLimit = 8 * 1024 * 1024;  //  8MB

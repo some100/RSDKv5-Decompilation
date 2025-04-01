@@ -17,12 +17,16 @@ public:
 
     inline static void HandleStreamLoad(ChannelInfo *channel, bool32 async)
     {
+#ifndef __EMSCRIPTEN_PTHREADS__
+        LoadStream(channel); // just load it synchronously on single threaded, emscripten builds
+#else
         if (async) {
             std::thread thread(LoadStream, channel);
             thread.detach();
         }
         else
             LoadStream(channel);
+#endif
     }
 
 private:

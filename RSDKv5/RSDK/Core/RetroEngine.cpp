@@ -15,6 +15,10 @@ Link::Handle gameLogicHandle = NULL;
 #include <unistd.h>
 #endif
 
+#if RETRO_PLATFORM == RETRO_WEB
+#include "emscripten.h"
+#endif
+
 int32 *RSDK::globalVarsPtr = NULL;
 #if RETRO_REV0U
 void (*RSDK::globalVarsInitCB)(void *globals) = NULL;
@@ -119,10 +123,14 @@ int32 RSDK::RunRetroEngine()
 #endif
         RenderDevice::ProcessEvents();
 
-#if RETRO_PLATFORM != RETRO_WEB
         if (!RenderDevice::isRunning)
-            break; // no way to break on web so just keep going
+#if RETRO_PLATFORM != RETRO_WEB
+            break;
+#else
+            emscripten_cancel_main_loop();
+#endif
 
+#if RETRO_PLATFORM != RETRO_WEB // main loop already runs at refresh rate, so this just slows down
         if (RenderDevice::CheckFPSCap()) {
             RenderDevice::UpdateFPSCap();
 #endif
